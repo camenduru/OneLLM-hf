@@ -1,5 +1,5 @@
 ---
-title: LLaMA Adapter
+title: LLaMA Adapter V2
 emoji: 🚀
 colorFrom: red
 colorTo: indigo
@@ -10,6 +10,6 @@ pinned: false
 ---
 
 ### LLaMA-Adapter
-The official demo for **LLaMA-Adapter: Efficient Fine-tuning of Language Models with Zero-init Attention**.
+The official demo for LLaMA-Adapter V2.
 Please refer to our [arXiv paper](https://arxiv.org/abs/2303.16199) and [github](https://github.com/ZrrSkywalker/LLaMA-Adapter) for more details.
 
