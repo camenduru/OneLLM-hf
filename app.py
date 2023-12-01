@@ -78,7 +78,7 @@ def model_worker(
     }[args.dtype]
     with default_tensor_type(dtype=target_dtype, device="cuda"):
         model = MetaModel(args.llama_type, args.llama_config, tokenizer_path=args.tokenizer_path)
-    for ckpt_id in args.num_ckpts:
+    for ckpt_id in range(args.num_ckpts):
         ckpt_path = hf_hub_download(repo_id=args.pretrained_path, filename=args.ckpt_format.format(str(ckpt_id)))
         print(f"Loading pretrained weights {ckpt_path}")
         checkpoint = torch.load(ckpt_path, map_location='cpu')
