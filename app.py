@@ -78,10 +78,12 @@ def model_worker(
     }[args.dtype]
     with default_tensor_type(dtype=target_dtype, device="cuda"):
         model = MetaModel(args.llama_type, args.llama_config, tokenizer_path=args.tokenizer_path)
-    print("Loading pretrained weights ...")
-    checkpoint = torch.load(args.pretrained_path, map_location='cpu')
-    msg = model.load_state_dict(checkpoint, strict=False)
-    print("load result:\n", msg)
+    for ckpt_id in args.num_ckpts:
+        ckpt_path = hf_hub_download(repo_id=args.pretrained_path, filename=args.ckpt_format.format(str(ckpt_id)))
+        print(f"Loading pretrained weights {ckpt_path}")
+        checkpoint = torch.load(ckpt_path, map_location='cpu')
+        msg = model.load_state_dict(checkpoint, strict=False)
+    # print("load result:\n", msg)
     model.cuda()
     model.eval()
     print(f"Model = {str(model)}")
@@ -242,7 +244,10 @@ class DemoConfig:
     llama_config = "config/llama2/7B.json"
     model_max_seq_len = 2048
     # pretrained_path = "weights/7B_2048/consolidated.00-of-01.pth"
-    pretrained_path = hf_hub_download(repo_id="csuhan/OneLLM-7B", filename="consolidated.00-of-01.pth")
+    # pretrained_path = hf_hub_download(repo_id="csuhan/OneLLM-7B", filename="consolidated.00-of-01.pth")
+    pretrained_path = "csuhan/OneLLM-7B-hf"
+    ckpt_format = "consolidated.00-of-01.s{}.pth"
+    num_ckpts = 10
     master_port = 23861
     master_addr = "127.0.0.1"
     dtype = "fp16"
