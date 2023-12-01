@@ -251,7 +251,7 @@ if __name__ == "__main__":
     args = DemoConfig()
     # using the default "fork" method messes up some imported libs (e.g.,
     # pandas)
-    mp.set_start_method("spawn")
+    # mp.set_start_method("spawn")
 
     # setup the queues and start the model workers
     request_queues = []
