@@ -1,5 +1,6 @@
 import sys
 import os
+sys.path.append(os.path.abspath(__file__).rsplit('/', 2)[0])
 
 import argparse
 import multiprocessing as mp
@@ -20,8 +21,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 from data.fintune_dataset import make_audio_features
 from data import video_utils 
-from dataclasses import dataclass
-from huggingface_hub import hf_hub_download
+
 
 T_random_resized_crop = transforms.Compose([
     transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.0), ratio=(0.75, 1.3333), interpolation=3,
@@ -234,21 +234,49 @@ def gradio_worker(
     demo.queue(api_open=True).launch(share=True, max_threads=1)
 
 
-@dataclass
-class DemoConfig:
-    gpu_ids = [0]
-    tokenizer_path = "config/llama2/tokenizer.model"
-    llama_type = "onellm"
-    llama_config = "config/llama2/7B.json"
-    model_max_seq_len = 2048
-    # pretrained_path = "weights/7B_2048/consolidated.00-of-01.pth"
-    pretrained_path = hf_hub_download(repo_id="csuhan/OneLLM-7B", filename="consolidated.00-of-01.pth")
-    master_port = 23861
-    master_addr = "127.0.0.1"
-    dtype = "fp16"
-
 if __name__ == "__main__":
-    args = DemoConfig()
+    parser = argparse.ArgumentParser("Chat Demo")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--gpu_ids", type=int, nargs="+",
+        help="A list of space-separated gpu ids to run the model on. "
+             "The model will span across GPUs in tensor-parallel mode."
+    )
+    parser.add_argument(
+        "--tokenizer_path", type=str,
+        help="Path to the tokenizer.model file provided along with the LLaMA "
+             "model."
+    )
+    parser.add_argument(
+        "--llama_type", default="onellm", type=str, metavar="MODEL",
+        help="LLaMA model type."
+    )
+    parser.add_argument(
+        "--llama_config", type=str, required=True,
+        help="Path to the llama model config json."
+    )
+    parser.add_argument(
+        "--model_max_seq_len", type=int, default=2048,
+        help="Max sequence length accepted by the pretrained model."
+    )
+    parser.add_argument(
+        "--pretrained_path", type=str, required=True,
+        help="Path to the llama model checkpoints. A list of checkpoints is "
+             "supported and will be merged from left to right.")
+    parser.add_argument(
+        "--master_port", type=int, default=23862,
+        help="A port used by the PyTorch distributed module to initialize."
+    )
+    parser.add_argument(
+        "--master_addr", type=str, default="127.0.0.1",
+        help="An address used by the PyTorch distributed module to initialize."
+    )
+    parser.add_argument(
+        "--dtype", type=str, choices=["fp16", "bf16"], default="fp16",
+        help="The dtype used for model weights and inference."
+    )
+    args = parser.parse_args()
+
     # using the default "fork" method messes up some imported libs (e.g.,
     # pandas)
     mp.set_start_method("spawn")

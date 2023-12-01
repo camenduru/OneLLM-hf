@@ -1,8 +1,13 @@
---extra-index-url https://download.pytorch.org/whl/cu113
-torch==1.12.0+cu113
+--extra-index-url https://download.pytorch.org/whl/cu117
+torch==2.0.0+cu117
+packaging
 fairscale
 sentencepiece
 Pillow
 huggingface_hub
-git+https://github.com/csuhan/timm_0_3_2.git
-git+https://github.com/openai/CLIP.git
+open_clip_torch
+pytorchvideo==0.1.5
+torchaudio
+matplotlib
+flash-attn
+gradio
