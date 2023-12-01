@@ -6,6 +6,7 @@ sentencepiece
 Pillow
 huggingface_hub
 open_clip_torch
+decord
 pytorchvideo==0.1.5
 torchaudio
 matplotlib
