@@ -207,7 +207,7 @@ def gradio_worker(
     #chatbot { flex-grow: 1; overflow: auto;}
     """
 
-    with gr.Blocks(css=CSS, theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(css=CSS, theme=gr.themes.Base()) as demo:
         gr.Markdown("## OneLLM: One Framework to Align All Modalities with Language")
         with gr.Row(equal_height=True):
             # with gr.Column(scale=1):
