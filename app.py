@@ -184,22 +184,12 @@ def gradio_worker(
         msg = ""
         return chatbot, msg
     
-    def change_modality(tab):
-        modality = 'image'
-        label_modal_dict = {
-            'Image': 'image',
-            'Video': 'video',
-            'Audio': 'audio',
-            'Point Cloud': 'point',
-            'IMU': 'imu',
-            'fMRI': 'fmri',
-            'Depth Map': 'rgbd',
-            'Normal Map': 'rgbn'
-        }
-        print(tab.label)
-        if tab.label in label_modal_dict:
-            modality = label_modal_dict[tab.label]
-        return modality
+    def change_modality_image():
+        return 'image'
+    def change_modality_video():
+        return 'video'
+    def change_modality_audio():
+        return 'audio'
 
     CSS ="""
     .contain { display: flex; flex-direction: column; }
@@ -247,9 +237,9 @@ def gradio_worker(
                 label="Top-p",
             )
         
-        img_tab.select(change_modality, [img_tab], [modality])
-        video_tab.select(change_modality, [video_tab], [modality])
-        audio_tab.select(change_modality, [audio_tab], [modality])
+        img_tab.select(change_modality_image, [], [modality])
+        video_tab.select(change_modality_video, [], [modality])
+        audio_tab.select(change_modality_audio, [], [modality])
 
         msg.submit(
             show_user_input, [msg, chatbot], [msg, chatbot],
