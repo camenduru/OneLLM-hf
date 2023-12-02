@@ -184,8 +184,7 @@ def gradio_worker(
         msg = ""
         return chatbot, msg
     
-    def change_modality(inputs):
-        tab = inputs[0]
+    def change_modality(tab):
         modality = 'image'
         label_modal_dict = {
             'Image': 'image',
@@ -197,6 +196,7 @@ def gradio_worker(
             'Depth Map': 'rgbd',
             'Normal Map': 'rgbn'
         }
+        print(tab.label)
         if tab.label in label_modal_dict:
             modality = label_modal_dict[tab.label]
         return modality
