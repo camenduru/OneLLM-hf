@@ -218,24 +218,24 @@ def gradio_worker(
                 chatbot = gr.Chatbot(elem_id="chatbot")
                 msg = gr.Textbox()
 
-        with gr.Row():
-            submit_button = gr.Button("Submit", variant="primary")
-            undo_button = gr.Button("Undo")
-            clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path, modality])
-        with gr.Row():
-            max_gen_len = gr.Slider(
-                minimum=1, maximum=args.model_max_seq_len // 2,
-                value=args.model_max_seq_len // 2, interactive=True,
-                label="Single-turn max response length",
-            )
-            gen_t = gr.Slider(
-                minimum=0, maximum=1, value=0.1, interactive=True,
-                label="Temperature",
-            )
-            top_p = gr.Slider(
-                minimum=0, maximum=1, value=0.75, interactive=True,
-                label="Top-p",
-            )
+                with gr.Row():
+                    submit_button = gr.Button("Submit", variant="primary")
+                    undo_button = gr.Button("Undo")
+                    clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path, modality])
+                with gr.Row():
+                    max_gen_len = gr.Slider(
+                        minimum=1, maximum=args.model_max_seq_len // 2,
+                        value=args.model_max_seq_len // 2, interactive=True,
+                        label="Single-turn max response length",
+                    )
+                    gen_t = gr.Slider(
+                        minimum=0, maximum=1, value=0.1, interactive=True,
+                        label="Temperature",
+                    )
+                    top_p = gr.Slider(
+                        minimum=0, maximum=1, value=0.75, interactive=True,
+                        label="Top-p",
+                    )
         
         img_tab.select(change_modality_image, [], [modality])
         video_tab.select(change_modality_video, [], [modality])
