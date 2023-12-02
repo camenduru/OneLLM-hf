@@ -183,20 +183,46 @@ def gradio_worker(
         chatbot = []
         msg = ""
         return chatbot, msg
+    
+    def change_modality(inputs):
+        tab = inputs[0]
+        modality = 'image'
+        label_modal_dict = {
+            'Image': 'image',
+            'Video': 'video',
+            'Audio': 'audio',
+            'Point Cloud': 'point',
+            'IMU': 'imu',
+            'fMRI': 'fmri',
+            'Depth Map': 'rgbd',
+            'Normal Map': 'rgbn'
+        }
+        if tab.label in label_modal_dict:
+            modality = label_modal_dict[tab.label]
+        return modality
 
     CSS ="""
     .contain { display: flex; flex-direction: column; }
     #component-0 { height: 100%; }
     #chatbot { flex-grow: 1; overflow: auto;}
     """
-    with gr.Blocks(css=CSS) as demo:
+
+    with gr.Blocks(css=CSS, theme=gr.themes.Soft()) as demo:
         gr.Markdown("## OneLLM: One Framework to Align All Modalities with Language")
         with gr.Row(equal_height=True):
+            # with gr.Column(scale=1):
+            #     img_path = gr.Image(label='Image Input', type='filepath')
+            #     video_path = gr.Video(label='Video Input')
+            #     audio_path = gr.Audio(label='Audio Input', type='filepath', sources=['upload'])
+            # modality = gr.Radio(choices=['image', 'audio', 'video'], value='image', interactive=True, label='Input Modalities', visible=False)
+            modality = gr.Textbox(value='image', visible=False)
             with gr.Column(scale=1):
-                img_path = gr.Image(label='Image Input', type='filepath')
-                video_path = gr.Video(label='Video Input')
-                audio_path = gr.Audio(label='Audio Input', type='filepath', sources=['upload'])
-                modality = gr.Radio(choices=['image', 'audio', 'video'], value='image', interactive=True, label='Input Modalities')
+                with gr.Tab('Image') as img_tab:
+                    img_path = gr.Image(label='Image Input', type='filepath')
+                with gr.Tab('Video') as video_tab:
+                    video_path = gr.Video(label='Video Input')
+                with gr.Tab('Audio') as audio_tab:
+                    audio_path = gr.Audio(label='Audio Input', type='filepath', sources=['upload'])
 
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(elem_id="chatbot")
@@ -220,6 +246,11 @@ def gradio_worker(
                 minimum=0, maximum=1, value=0.75, interactive=True,
                 label="Top-p",
             )
+        
+        img_tab.select(change_modality, [img_tab], [modality])
+        video_tab.select(change_modality, [video_tab], [modality])
+        audio_tab.select(change_modality, [audio_tab], [modality])
+
         msg.submit(
             show_user_input, [msg, chatbot], [msg, chatbot],
         ).then(
