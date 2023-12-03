@@ -229,6 +229,16 @@ def gradio_worker(
                             ],
                         inputs=[audio_path, msg],
                     )
+                with gr.Tab('Point Cloud') as point_tab:
+                    gr.Markdown('Coming soon🤗')
+                with gr.Tab('IMU') as imu_tab:
+                    gr.Markdown('Coming soon🤗')
+                with gr.Tab('fMRI') as fmri_tab:
+                    gr.Markdown('Coming soon🤗')
+                with gr.Tab('Depth Map') as depth_tab:
+                    gr.Markdown('Coming soon🤗')
+                with gr.Tab('Normal Map') as normal_tab:
+                    gr.Markdown('Coming soon🤗')
 
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(elem_id="chatbot")
