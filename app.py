@@ -213,22 +213,22 @@ def gradio_worker(
                     )
                 with gr.Tab('Video') as video_tab:
                     video_path = gr.Video(label='Video Input')
-                    # gr.Examples(
-                    #     examples=[
-                    #         ["examples/flower.mp4", "What process does this video record?"],
-                    #         ["examples/caixukun.mp4", "Describe the video in detail."],
-                    #         ],
-                    #     inputs=[video_path, msg],
-                    # )
+                    gr.Examples(
+                        examples=[
+                            "examples/flower.mp4",
+                            "examples/star_kun.mp4",,
+                            ],
+                        inputs=[video_path],
+                    )
                 with gr.Tab('Audio') as audio_tab:
                     audio_path = gr.Audio(label='Audio Input', type='filepath', sources=['upload'])
-                    # gr.Examples(
-                    #     examples=[
-                    #         ["examples/bell_ring.wav", "What can you hear in the audio?"],
-                    #         ["examples/bird_audio.wav", "Describe the audio."],
-                    #         ],
-                    #     inputs=[audio_path, msg],
-                    # )
+                    gr.Examples(
+                        examples=[
+                            "examples/bell_ring.wav",
+                            "examples/bird_audio.wav",
+                            ],
+                        inputs=[audio_path],
+                    )
                 with gr.Tab('Point Cloud') as point_tab:
                     gr.Markdown('Coming soon🤗')
                 with gr.Tab('IMU') as imu_tab:
