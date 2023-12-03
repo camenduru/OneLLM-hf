@@ -216,7 +216,7 @@ def gradio_worker(
                     gr.Examples(
                         examples=[
                             "examples/flower.mp4",
-                            "examples/star_kun.mp4",,
+                            "examples/star_kun.mp4",
                             ],
                         inputs=[video_path],
                     )
