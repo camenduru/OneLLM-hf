@@ -200,19 +200,35 @@ def gradio_worker(
     with gr.Blocks(css=CSS, theme=gr.themes.Base()) as demo:
         gr.Markdown("## OneLLM: One Framework to Align All Modalities with Language")
         with gr.Row(equal_height=True):
-            # with gr.Column(scale=1):
-            #     img_path = gr.Image(label='Image Input', type='filepath')
-            #     video_path = gr.Video(label='Video Input')
-            #     audio_path = gr.Audio(label='Audio Input', type='filepath', sources=['upload'])
-            # modality = gr.Radio(choices=['image', 'audio', 'video'], value='image', interactive=True, label='Input Modalities', visible=False)
             modality = gr.Textbox(value='image', visible=False)
             with gr.Column(scale=1):
                 with gr.Tab('Image') as img_tab:
                     img_path = gr.Image(label='Image Input', type='filepath')
+                    gr.Examples(
+                        examples=[
+                            ["examples/animal.png", "Why this image is funny?"],
+                            ["examples/food_menu.png", "Introduce me the poster."],
+                            ],
+                        inputs=[img_path, msg],
+                    )
                 with gr.Tab('Video') as video_tab:
                     video_path = gr.Video(label='Video Input')
+                    gr.Examples(
+                        examples=[
+                            ["examples/flower.mp4", "What process does this video record?"],
+                            ["examples/caixukun.mp4", "Describe the video in detail."],
+                            ],
+                        inputs=[video_path, msg],
+                    )
                 with gr.Tab('Audio') as audio_tab:
                     audio_path = gr.Audio(label='Audio Input', type='filepath', sources=['upload'])
+                    gr.Examples(
+                        examples=[
+                            ["examples/bell_ring.wav", "What can you hear in the audio?"],
+                            ["examples/bird_audio.wav", "Describe the audio."],
+                            ],
+                        inputs=[audio_path, msg],
+                    )
 
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(elem_id="chatbot")
