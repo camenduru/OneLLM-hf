@@ -247,7 +247,7 @@ def gradio_worker(
                 with gr.Row():
                     submit_button = gr.Button("Submit", variant="primary")
                     undo_button = gr.Button("Undo")
-                    clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path, modality])
+                    clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path])
                 with gr.Row():
                     max_gen_len = gr.Slider(
                         minimum=1, maximum=args.model_max_seq_len // 2,
