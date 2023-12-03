@@ -206,10 +206,10 @@ def gradio_worker(
                     img_path = gr.Image(label='Image Input', type='filepath')
                     gr.Examples(
                         examples=[
-                            ["examples/animal.png", "Why this image is funny?"],
-                            ["examples/food_menu.png", "Introduce me the poster."],
+                            "examples/animal.png",
+                            "examples/food_menu.png",
                             ],
-                        inputs=[img_path, msg],
+                        inputs=[img_path],
                     )
                 with gr.Tab('Video') as video_tab:
                     video_path = gr.Video(label='Video Input')
