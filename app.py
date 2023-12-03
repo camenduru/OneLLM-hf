@@ -204,31 +204,31 @@ def gradio_worker(
             with gr.Column(scale=1):
                 with gr.Tab('Image') as img_tab:
                     img_path = gr.Image(label='Image Input', type='filepath')
-                    gr.Examples(
-                        examples=[
-                            ["examples/animal.png", "Why this image is funny?"],
-                            ["examples/food_menu.png", "Introduce me the poster."],
-                            ],
-                        inputs=[img_path, msg],
-                    )
+                    # gr.Examples(
+                    #     examples=[
+                    #         ["examples/animal.png", "Why this image is funny?"],
+                    #         ["examples/food_menu.png", "Introduce me the poster."],
+                    #         ],
+                    #     inputs=[img_path, msg],
+                    # )
                 with gr.Tab('Video') as video_tab:
                     video_path = gr.Video(label='Video Input')
-                    gr.Examples(
-                        examples=[
-                            ["examples/flower.mp4", "What process does this video record?"],
-                            ["examples/caixukun.mp4", "Describe the video in detail."],
-                            ],
-                        inputs=[video_path, msg],
-                    )
+                    # gr.Examples(
+                    #     examples=[
+                    #         ["examples/flower.mp4", "What process does this video record?"],
+                    #         ["examples/caixukun.mp4", "Describe the video in detail."],
+                    #         ],
+                    #     inputs=[video_path, msg],
+                    # )
                 with gr.Tab('Audio') as audio_tab:
                     audio_path = gr.Audio(label='Audio Input', type='filepath', sources=['upload'])
-                    gr.Examples(
-                        examples=[
-                            ["examples/bell_ring.wav", "What can you hear in the audio?"],
-                            ["examples/bird_audio.wav", "Describe the audio."],
-                            ],
-                        inputs=[audio_path, msg],
-                    )
+                    # gr.Examples(
+                    #     examples=[
+                    #         ["examples/bell_ring.wav", "What can you hear in the audio?"],
+                    #         ["examples/bird_audio.wav", "Describe the audio."],
+                    #         ],
+                    #     inputs=[audio_path, msg],
+                    # )
                 with gr.Tab('Point Cloud') as point_tab:
                     gr.Markdown('Coming soon🤗')
                 with gr.Tab('IMU') as imu_tab:
@@ -301,7 +301,7 @@ class DemoConfig:
 
 if __name__ == "__main__":
     args = DemoConfig()
-    
+
     # using the default "fork" method messes up some imported libs (e.g.,
     # pandas)
     # mp.set_start_method("spawn")
