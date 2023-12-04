@@ -207,7 +207,7 @@ def gradio_worker(
                     img_path = gr.Image(label='Image Input', type='filepath')
                     gr.Examples(
                         examples=[
-                            "examples/animal.png",
+                            "examples/new_york.jpg",
                             "examples/food_menu.png",
                             ],
                         inputs=[img_path],
