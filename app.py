@@ -196,10 +196,10 @@ def gradio_worker(
     #component-0 { height: 100%; }
     #chatbot { flex-grow: 1; overflow: auto;}
     """
-    
+
     header="""
     ## OneLLM: One Framework to Align All Modalities with Language
-    [[Project Page](https://onellm.csuhan.com)] [[Code](https://github.com/csuhan/OneLLM)]
+    [[Project Page](https://onellm.csuhan.com)] [[Paper](https://github.com/csuhan/OneLLM/blob/main/OneLLM_Arxiv.pdf)] [[Code](https://github.com/csuhan/OneLLM)]
     """
 
     with gr.Blocks(css=CSS, theme=gr.themes.Base()) as demo:
