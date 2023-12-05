@@ -283,7 +283,7 @@ def gradio_worker(
                     gr.Markdown('Coming soon🤗')
                 with gr.Tab('fMRI') as fmri_tab:
                     fmri_path = gr.File(label='fMRI Input', elem_id="fmripath", elem_classes="")
-                    fmri_image_path = gr.Image(interactive=False)
+                    fmri_image_path = gr.Image(label='Reference Image', interactive=False)
                     gr.Examples(
                         examples=[
                             [file.replace('.jpg', '.npy'), file]
