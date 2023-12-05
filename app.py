@@ -27,8 +27,6 @@ from data.fintune_dataset import pc_norm
 from functools import partial
 import glob
 
-import os
-print(os.path.dirname(os.path.abspath(__file__)))
 
 T_random_resized_crop = transforms.Compose([
     transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.0), ratio=(0.75, 1.3333), interpolation=3,
