@@ -13,4 +13,3 @@ matplotlib
 flash-attn
 gradio
 plotly
-git+https://github.com/csuhan/pointnet2_backup.git
