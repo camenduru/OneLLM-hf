@@ -13,4 +13,3 @@ matplotlib
 flash-attn
 gradio
 plotly
-/home/user/app/model/lib/pointnet2
