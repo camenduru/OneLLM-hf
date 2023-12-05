@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Function
-import pointnet2_cuda
+from . import pointnet2_cuda
 
 class KNN(nn.Module):
     def __init__(self, neighbors, transpose_mode=True):
