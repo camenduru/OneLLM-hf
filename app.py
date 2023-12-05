@@ -22,6 +22,10 @@ from data.fintune_dataset import make_audio_features
 from data import video_utils 
 from dataclasses import dataclass
 from huggingface_hub import hf_hub_download
+import plotly.graph_objects as go
+from data.fintune_dataset import pc_norm
+from functools import partial
+import glob
 
 T_random_resized_crop = transforms.Compose([
     transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.0), ratio=(0.75, 1.3333), interpolation=3,
@@ -39,6 +43,17 @@ def load_video(video_path):
     video_feats = video_utils.load_and_transform_video_data(video_path, video_path, clip_duration=1, clips_per_video=5)
     return video_feats[:, :, 0]
 
+def load_point(point_path):
+    point_feat = np.load(point_path)
+    point_feat = torch.tensor(point_feat)
+    point_feat = pc_norm(point_feat)
+    return point_feat
+
+def load_fmri(fmri_path):
+    data = np.load(fmri_path)
+    data = data.mean(axis=0)
+    data = torch.tensor(data[None])
+    return data
 
 def model_worker(
     rank: int, args: argparse.Namespace, barrier: mp.Barrier,
@@ -79,7 +94,8 @@ def model_worker(
     with default_tensor_type(dtype=target_dtype, device="cuda"):
         model = MetaModel(args.llama_type, args.llama_config, tokenizer_path=args.tokenizer_path)
     for ckpt_id in range(args.num_ckpts):
-        ckpt_path = hf_hub_download(repo_id=args.pretrained_path, filename=args.ckpt_format.format(str(ckpt_id)))
+        # ckpt_path = hf_hub_download(repo_id=args.pretrained_path, filename=args.ckpt_format.format(str(ckpt_id)))
+        ckpt_path = os.path.join(args.pretrained_path, args.ckpt_format.format(str(ckpt_id)))
         print(f"Loading pretrained weights {ckpt_path}")
         checkpoint = torch.load(ckpt_path, map_location='cpu')
         msg = model.load_state_dict(checkpoint, strict=False)
@@ -91,7 +107,7 @@ def model_worker(
     barrier.wait()
 
     while True:
-        img_path, audio_path, video_path, chatbot, max_gen_len, temperature, top_p, modality = request_queue.get()
+        img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, temperature, top_p, modality = request_queue.get()
         if 'image' in modality and img_path is not None:
             image = Image.open(img_path).convert('RGB')
             inputs = T_random_resized_crop(image)
@@ -99,6 +115,10 @@ def model_worker(
             inputs = load_video(video_path)
         elif 'audio' in modality and audio_path is not None:
             inputs = load_audio(audio_path)
+        elif 'point' in modality and point_path is not None:
+            inputs = load_point(point_path)
+        elif 'fmri' in modality and fmri_path is not None:
+            inputs = load_fmri(fmri_path)
         else:
             inputs = None
         
@@ -164,9 +184,9 @@ def gradio_worker(
     def show_user_input(msg, chatbot):
         return "", chatbot + [[msg, None]]
 
-    def stream_model_output(img_path, audio_path, video_path, chatbot, max_gen_len, gen_t, top_p, modality):
+    def stream_model_output(img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality):
         for queue in request_queues:
-            queue.put((img_path, audio_path, video_path, chatbot, max_gen_len, gen_t, top_p, modality))
+            queue.put((img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality))
         while True:
             content_piece = response_queue.get()
             chatbot[-1][1] = content_piece["text"]
@@ -184,12 +204,27 @@ def gradio_worker(
         msg = ""
         return chatbot, msg
     
-    def change_modality_image():
-        return 'image'
-    def change_modality_video():
-        return 'video'
-    def change_modality_audio():
-        return 'audio'
+    def show_point_cloud(file):
+        point = load_point(file).numpy()
+        fig = go.Figure(
+            data=[
+                go.Scatter3d(
+                    x=point[:,0], y=point[:,1], z=point[:,2],
+                    mode='markers',
+                    marker=dict(
+                    size=1.2,
+                    color=['rgb({},{},{})'.format(r, g, b) for r,g,b in zip(point[:,3], point[:,4], point[:,5])]
+                ))],
+            layout=dict(
+                scene=dict(
+                    xaxis=dict(visible=False),
+                    yaxis=dict(visible=False),
+                    zaxis=dict(visible=False)
+                )),)
+        return fig
+    
+    def change_modality(modal):
+        return modal
 
     CSS ="""
     .contain { display: flex; flex-direction: column; }
@@ -235,11 +270,28 @@ def gradio_worker(
                         inputs=[audio_path],
                     )
                 with gr.Tab('Point Cloud') as point_tab:
-                    gr.Markdown('Coming soon🤗')
+                    point_path = gr.File(label='Point Cloud Input', elem_id="pointpath", elem_classes="")
+                    point_vis = gr.Plot()
+                    btn = gr.Button(value="Show Point Cloud")
+                    btn.click(show_point_cloud, point_path, point_vis)
+                    gr.Examples(
+                        examples=glob.glob("examples/point/*.npy"),
+                        inputs=[point_path],
+                        examples_per_page=5,
+                    )
                 with gr.Tab('IMU') as imu_tab:
                     gr.Markdown('Coming soon🤗')
                 with gr.Tab('fMRI') as fmri_tab:
-                    gr.Markdown('Coming soon🤗')
+                    fmri_path = gr.File(label='fMRI Input', elem_id="fmripath", elem_classes="")
+                    fmri_image_path = gr.Image(interactive=False)
+                    gr.Examples(
+                        examples=[
+                            [file.replace('.jpg', '.npy'), file]
+                            for file in glob.glob("examples/fmri/*.jpg")
+                        ],
+                        inputs=[fmri_path, fmri_image_path],
+                        examples_per_page=3,
+                    )
                 with gr.Tab('Depth Map') as depth_tab:
                     gr.Markdown('Coming soon🤗')
                 with gr.Tab('Normal Map') as normal_tab:
@@ -252,7 +304,7 @@ def gradio_worker(
                 with gr.Row():
                     submit_button = gr.Button("Submit", variant="primary")
                     undo_button = gr.Button("Undo")
-                    clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path])
+                    clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path, point_path, fmri_path, point_vis])
                 with gr.Row():
                     max_gen_len = gr.Slider(
                         minimum=1, maximum=args.model_max_seq_len // 2,
@@ -268,19 +320,21 @@ def gradio_worker(
                         label="Top-p",
                     )
         
-        img_tab.select(change_modality_image, [], [modality])
-        video_tab.select(change_modality_video, [], [modality])
-        audio_tab.select(change_modality_audio, [], [modality])
+        img_tab.select(partial(change_modality, 'image'), [], [modality])
+        video_tab.select(partial(change_modality, 'video'), [], [modality])
+        audio_tab.select(partial(change_modality, 'audio'), [], [modality])
+        point_tab.select(partial(change_modality, 'point'), [], [modality])
+        fmri_tab.select(partial(change_modality, 'fmri'), [], [modality])
 
         msg.submit(
             show_user_input, [msg, chatbot], [msg, chatbot],
         ).then(
-            stream_model_output, [img_path, audio_path, video_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
+            stream_model_output, [img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
         )
         submit_button.click(
             show_user_input, [msg, chatbot], [msg, chatbot],
         ).then(
-            stream_model_output, [img_path, audio_path, video_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
+            stream_model_output, [img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
         )
         undo_button.click(undo, chatbot, chatbot)
         # img_path.change(clear, [], [chatbot, msg])
@@ -297,10 +351,11 @@ class DemoConfig:
     model_max_seq_len = 2048
     # pretrained_path = "weights/7B_2048/consolidated.00-of-01.pth"
     # pretrained_path = hf_hub_download(repo_id="csuhan/OneLLM-7B", filename="consolidated.00-of-01.pth")
-    pretrained_path = "csuhan/OneLLM-7B-hf"
+    # pretrained_path = "csuhan/OneLLM-7B-hf"
+    pretrained_path = "/home/pgao/jiaming/weights/7B_v20_splits/"
     ckpt_format = "consolidated.00-of-01.s{}.pth"
     num_ckpts = 10
-    master_port = 23861
+    master_port = 23863
     master_addr = "127.0.0.1"
     dtype = "fp16"
 

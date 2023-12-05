@@ -280,8 +280,7 @@ class Transformer(nn.Module):
         self.routers = nn.ModuleDict()
         self.start_tag = nn.ParameterDict()
         self.end_tag = nn.ParameterDict()
-        # self.modals = ['image', 'audio', 'point', 'video', 'rgbd', 'rgbn', 'fmri', 'imu']
-        self.modals = ['image', 'audio', 'video', 'rgbd', 'rgbn', 'fmri', 'imu']
+        self.modals = ['image', 'audio', 'point', 'video', 'rgbd', 'rgbn', 'fmri', 'imu']
         for modal in self.modals:
             if modal in ['image', 'video', 'rgbn', 'rgbn']:
                 modal_tokens = 256 + 1
@@ -294,7 +293,7 @@ class Transformer(nn.Module):
                     torch.empty([modal_tokens, clip_width]))
                 nn.init.normal_(self.positional_embedding[modal], std=0.02)
             elif modal == 'point':
-                from lib.point_utils import PointPatchEmbed
+                from model.lib.point_utils import PointPatchEmbed
                 self.conv1[modal] = PointPatchEmbed(
                     in_channels=6, channels=clip_width)
                 modal_tokens = 1024 + 1

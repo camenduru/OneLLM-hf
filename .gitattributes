@@ -38,3 +38,10 @@ examples/caixukun.mp4 filter=lfs diff=lfs merge=lfs -text
 examples/flower.mp4 filter=lfs diff=lfs merge=lfs -text
 examples/food_menu.png filter=lfs diff=lfs merge=lfs -text
 examples/star_kun.mp4 filter=lfs diff=lfs merge=lfs -text
+model/lib/pointnet2/build/lib.linux-x86_64-cpython-39/pointnet2_cuda.cpython-39-x86_64-linux-gnu.so filter=lfs diff=lfs merge=lfs -text
+model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/ball_query.o filter=lfs diff=lfs merge=lfs -text
+model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/group_points.o filter=lfs diff=lfs merge=lfs -text
+model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/interpolate.o filter=lfs diff=lfs merge=lfs -text
+model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/pointnet2_api.o filter=lfs diff=lfs merge=lfs -text
+model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/sampling.o filter=lfs diff=lfs merge=lfs -text
+model/lib/pointnet2/dist/pointnet2-0.0.0-py3.9-linux-x86_64.egg filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,10 @@
+# ninja log v5
+3	13814	1701773085497639679	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/sampling.o	df8f8e58c0087c9c
+1	13838	1701773085525639600	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/group_points.o	6b17362810207ae9
+2	13925	1701773085613639348	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/interpolate.o	79c442400845cc89
+1	14511	1701773086197637684	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/ball_query.o	79a41849bd99bac5
+1	27453	1701773099133600702	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/ball_query_gpu.o	c5cdc62e1b68c75a
+2	27764	1701773099449599796	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/group_points_gpu.o	8692792652d15ef5
+2	27829	1701773099513599612	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/interpolate_gpu.o	18b2a84b93ded4ae
+3	28276	1701773099961598327	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/sampling_gpu.o	f8c8e1e67e2b7e7f
+2	30587	1701773102261591724	/data1/jiaming/OneLLM-Inference-huggingface/model/lib/pointnet2/build/temp.linux-x86_64-cpython-39/src/pointnet2_api.o	d21e0eacc4130d8e
