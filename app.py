@@ -1,5 +1,6 @@
 import os
 current_file_dir=os.path.dirname(os.path.abspath(__file__))
+print(os.listdir(current_file_dir))
 import subprocess
 msg = subprocess.check_output([f"cd {current_file_dir}/model/lib/pointnet2 && python setup.py install"])
 print(msg)
