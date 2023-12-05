@@ -94,8 +94,8 @@ def model_worker(
     with default_tensor_type(dtype=target_dtype, device="cuda"):
         model = MetaModel(args.llama_type, args.llama_config, tokenizer_path=args.tokenizer_path)
     for ckpt_id in range(args.num_ckpts):
-        # ckpt_path = hf_hub_download(repo_id=args.pretrained_path, filename=args.ckpt_format.format(str(ckpt_id)))
-        ckpt_path = os.path.join(args.pretrained_path, args.ckpt_format.format(str(ckpt_id)))
+        ckpt_path = hf_hub_download(repo_id=args.pretrained_path, filename=args.ckpt_format.format(str(ckpt_id)))
+        # ckpt_path = os.path.join(args.pretrained_path, args.ckpt_format.format(str(ckpt_id)))
         print(f"Loading pretrained weights {ckpt_path}")
         checkpoint = torch.load(ckpt_path, map_location='cpu')
         msg = model.load_state_dict(checkpoint, strict=False)
@@ -349,10 +349,8 @@ class DemoConfig:
     llama_type = "onellm"
     llama_config = "config/llama2/7B.json"
     model_max_seq_len = 2048
-    # pretrained_path = "weights/7B_2048/consolidated.00-of-01.pth"
-    # pretrained_path = hf_hub_download(repo_id="csuhan/OneLLM-7B", filename="consolidated.00-of-01.pth")
-    # pretrained_path = "csuhan/OneLLM-7B-hf"
-    pretrained_path = "/home/pgao/jiaming/weights/7B_v20_splits/"
+    pretrained_path = "csuhan/OneLLM-7B-hf"
+    # pretrained_path = "/home/pgao/jiaming/weights/7B_v20_splits/"
     ckpt_format = "consolidated.00-of-01.s{}.pth"
     num_ckpts = 10
     master_port = 23863
