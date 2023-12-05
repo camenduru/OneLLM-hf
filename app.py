@@ -1,3 +1,7 @@
+import subprocess
+msg = subprocess.check_output(["cd /home/user/app/model/lib/pointnet2 && python setup.py install"])
+print(msg)
+
 import sys
 import os
 import argparse
