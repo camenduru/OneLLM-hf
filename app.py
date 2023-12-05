@@ -1,6 +1,5 @@
 import sys
 import os
-os.system('cd /home/user/app/model/lib/pointnet2 && python setup.py install')
 import argparse
 import multiprocessing as mp
 import numpy as np
