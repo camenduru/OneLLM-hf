@@ -12,3 +12,4 @@ torchaudio
 matplotlib
 flash-attn
 gradio
+plotly
