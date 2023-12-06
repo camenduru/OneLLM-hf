@@ -332,7 +332,8 @@ def gradio_worker(
                             [rgb_image.replace('rgb', 'depth'), rgb_image]
                             for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[:9]
                         ],
-                        inputs=[depth_path, depth_rgb_path]
+                        inputs=[depth_path, depth_rgb_path],
+                        examples_per_page=3,
                     )
                 with gr.Tab('Normal Map') as normal_tab:
                     normal_path = gr.Image(label='Normal Map', type='filepath')
