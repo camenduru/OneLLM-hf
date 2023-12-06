@@ -25,7 +25,7 @@ import plotly.graph_objects as go
 from data.fintune_dataset import pc_norm
 from functools import partial
 import glob
-
+import torchvision.transforms.functional as F
 
 T_random_resized_crop = transforms.Compose([
     transforms.RandomResizedCrop(size=(224, 224), scale=(0.9, 1.0), ratio=(0.75, 1.3333), interpolation=3,
@@ -33,6 +33,23 @@ T_random_resized_crop = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])])
 
+class PairRandomResizedCrop(transforms.RandomResizedCrop):
+    def forward(self, imgs):
+        i, j, h, w = self.get_params(imgs[0], self.scale, self.ratio)
+        return [F.resized_crop(img, i, j, h, w, self.size, self.interpolation, antialias=self.antialias) for img in imgs]
+
+class PairToTensor(transforms.ToTensor):
+    def __call__(self, pics):
+        return [F.to_tensor(pic) for pic in pics]
+
+class PairNormalize(transforms.Normalize):
+    def forward(self, tensors):
+        return [F.normalize(tensor, self.mean, self.std, self.inplace) for tensor in tensors]
+    
+transform_pairimg_train = transforms.Compose([
+    PairRandomResizedCrop(size=(224, 224), scale=(0.99, 1.0), ratio=(0.75, 1.3333), interpolation=3, antialias=None),  # 3 is bicubic
+    PairToTensor(),
+    PairNormalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])])
 
 def load_audio(audio_path):
     fbank = make_audio_features(audio_path, mel_bins=128)
@@ -54,6 +71,17 @@ def load_fmri(fmri_path):
     data = data.mean(axis=0)
     data = torch.tensor(data[None])
     return data
+
+def load_rgbx(image_path, x_image_path):
+    image = Image.open(image_path).convert('RGB')
+    x_image = Image.open(x_image_path).convert('RGB')
+    x_image = x_image.resize(image.size[-2:])
+
+    image, x_image = transform_pairimg_train([image, x_image])
+
+    # [2, 3, H, W]
+    image = torch.stack([image, x_image], dim=0)
+    return image
 
 def model_worker(
     rank: int, args: argparse.Namespace, barrier: mp.Barrier,
@@ -107,7 +135,7 @@ def model_worker(
     barrier.wait()
 
     while True:
-        img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, temperature, top_p, modality = request_queue.get()
+        img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, temperature, top_p, modality = request_queue.get()
         if 'image' in modality and img_path is not None:
             image = Image.open(img_path).convert('RGB')
             inputs = T_random_resized_crop(image)
@@ -119,6 +147,10 @@ def model_worker(
             inputs = load_point(point_path)
         elif 'fmri' in modality and fmri_path is not None:
             inputs = load_fmri(fmri_path)
+        elif 'rgbd' in modality and depth_path is not None and depth_rgb_path is not None:
+            inputs = load_rgbx(depth_rgb_path, depth_path)
+        elif 'rgbn' in modality and normal_path is not None and normal_rgb_path is not None:
+            inputs = load_rgbx(normal_rgb_path, normal_path)
         else:
             inputs = None
         
@@ -184,9 +216,9 @@ def gradio_worker(
     def show_user_input(msg, chatbot):
         return "", chatbot + [[msg, None]]
 
-    def stream_model_output(img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality):
+    def stream_model_output(img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, gen_t, top_p, modality):
         for queue in request_queues:
-            queue.put((img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality))
+            queue.put((img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, gen_t, top_p, modality))
         while True:
             content_piece = response_queue.get()
             chatbot[-1][1] = content_piece["text"]
@@ -293,10 +325,25 @@ def gradio_worker(
                         examples_per_page=3,
                     )
                 with gr.Tab('Depth Map') as depth_tab:
-                    gr.Markdown('Coming soon🤗')
+                    depth_path = gr.Image(label='Depth Map', type='filepath')
+                    depth_rgb_path = gr.Image(label='RGB Image', type='filepath')
+                    gr.Examples(
+                        examples=[
+                            [rgb_image.replace('rgb', 'depth'), rgb_image]
+                            for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[:9]
+                        ],
+                        inputs=[depth_path, depth_rgb_path]
+                    )
                 with gr.Tab('Normal Map') as normal_tab:
-                    gr.Markdown('Coming soon🤗')
-
+                    normal_path = gr.Image(label='Normal Map', type='filepath')
+                    normal_rgb_path = gr.Image(label='RGB Image', type='filepath')
+                    gr.Examples(
+                        examples=[
+                            [rgb_image.replace('rgb', 'normal'), rgb_image]
+                            for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[-9:]
+                        ],
+                        inputs=[normal_path, normal_rgb_path]
+                    )
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(elem_id="chatbot")
                 msg = gr.Textbox()
@@ -304,7 +351,7 @@ def gradio_worker(
                 with gr.Row():
                     submit_button = gr.Button("Submit", variant="primary")
                     undo_button = gr.Button("Undo")
-                    clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path, point_path, fmri_path, point_vis])
+                    clear_button = gr.ClearButton([chatbot, msg, img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, point_vis])
                 with gr.Row():
                     max_gen_len = gr.Slider(
                         minimum=1, maximum=args.model_max_seq_len // 2,
@@ -325,16 +372,18 @@ def gradio_worker(
         audio_tab.select(partial(change_modality, 'audio'), [], [modality])
         point_tab.select(partial(change_modality, 'point'), [], [modality])
         fmri_tab.select(partial(change_modality, 'fmri'), [], [modality])
+        depth_tab.select(partial(change_modality, 'rgbd'), [], [modality])
+        normal_tab.select(partial(change_modality, 'rgbn'), [], [modality])
 
         msg.submit(
             show_user_input, [msg, chatbot], [msg, chatbot],
         ).then(
-            stream_model_output, [img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
+            stream_model_output, [img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
         )
         submit_button.click(
             show_user_input, [msg, chatbot], [msg, chatbot],
         ).then(
-            stream_model_output, [img_path, audio_path, video_path, point_path, fmri_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
+            stream_model_output, [img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
         )
         undo_button.click(undo, chatbot, chatbot)
         # img_path.change(clear, [], [chatbot, msg])
