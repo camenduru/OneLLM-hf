@@ -338,13 +338,14 @@ def gradio_worker(
                 with gr.Tab('Normal Map') as normal_tab:
                     normal_path = gr.Image(label='Normal Map', type='filepath')
                     normal_rgb_path = gr.Image(label='RGB Image', type='filepath')
-                    # gr.Examples(
-                    #     examples=[
-                    #         [rgb_image.replace('rgb', 'normal'), rgb_image]
-                    #         for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[-9:]
-                    #     ],
-                    #     inputs=[normal_path, normal_rgb_path]
-                    # )
+                    gr.Examples(
+                        examples=[
+                            [rgb_image.replace('rgb', 'normal'), rgb_image]
+                            for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[-9:]
+                        ],
+                        inputs=[normal_path, normal_rgb_path],
+                        examples_per_page=3,
+                    )
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(elem_id="chatbot")
                 msg = gr.Textbox()
