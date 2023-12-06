@@ -341,7 +341,7 @@ def gradio_worker(
                     gr.Examples(
                         examples=[
                             [rgb_image.replace('rgb', 'normal'), rgb_image]
-                            for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[-9:]
+                            for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[9:]
                         ],
                         inputs=[normal_path, normal_rgb_path],
                         examples_per_page=3,
