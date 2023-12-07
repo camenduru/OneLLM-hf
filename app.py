@@ -83,6 +83,10 @@ def load_rgbx(image_path, x_image_path):
     image = torch.stack([image, x_image], dim=0)
     return image
 
+
+class Ready: pass
+
+
 def model_worker(
     rank: int, args: argparse.Namespace, barrier: mp.Barrier,
     request_queue: mp.Queue, response_queue: Optional[mp.Queue] = None,
@@ -135,6 +139,8 @@ def model_worker(
     barrier.wait()
 
     while True:
+        if response_queue is not None:
+            response_queue.put(Ready())
         img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, temperature, top_p, modality = request_queue.get()
         if 'image' in modality and img_path is not None:
             image = Image.open(img_path).convert('RGB')
@@ -217,6 +223,10 @@ def gradio_worker(
         return "", chatbot + [[msg, None]]
 
     def stream_model_output(img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, gen_t, top_p, modality):
+        while True:
+            content_piece = response_queue.get()
+            if isinstance(content_piece, Ready):
+                break
         for queue in request_queues:
             queue.put((img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, gen_t, top_p, modality))
         while True:
@@ -368,7 +378,6 @@ def gradio_worker(
                         minimum=0, maximum=1, value=0.75, interactive=True,
                         label="Top-p",
                     )
-                gr.Markdown("Note: We are fixing a bug in multi-user session control.")
         
         img_tab.select(partial(change_modality, 'image'), [], [modality])
         video_tab.select(partial(change_modality, 'video'), [], [modality])
