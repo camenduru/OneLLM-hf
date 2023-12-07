@@ -349,8 +349,6 @@ def gradio_worker(
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(elem_id="chatbot")
                 msg = gr.Textbox()
-                gr.Markdown("Note: We are fixing a bug in multi-user session control.")
-
 
                 with gr.Row():
                     submit_button = gr.Button("Submit", variant="primary")
@@ -370,6 +368,7 @@ def gradio_worker(
                         minimum=0, maximum=1, value=0.75, interactive=True,
                         label="Top-p",
                     )
+                gr.Markdown("Note: We are fixing a bug in multi-user session control.")
         
         img_tab.select(partial(change_modality, 'image'), [], [modality])
         video_tab.select(partial(change_modality, 'video'), [], [modality])
