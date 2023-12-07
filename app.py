@@ -294,7 +294,7 @@ def gradio_worker(
                         inputs=[img_path],
                     )
                 with gr.Tab('Video') as video_tab:
-                    video_path = gr.Video(label='Video Input')
+                    video_path = gr.Video(label='Video Input', max_length=180)
                     gr.Examples(
                         examples=[
                             "examples/flower.mp4",
