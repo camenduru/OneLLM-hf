@@ -266,7 +266,7 @@ def gradio_worker(
 
     header="""
     ## OneLLM: One Framework to Align All Modalities with Language
-    [[Project Page](https://onellm.csuhan.com)] [[Paper](https://github.com/csuhan/OneLLM/blob/main/OneLLM_Arxiv.pdf)] [[Code](https://github.com/csuhan/OneLLM)]
+    [[Project Page](https://onellm.csuhan.com)] [[Paper](https://arxiv.org/abs/2312.03700)] [[Code](https://github.com/csuhan/OneLLM)]
     """
 
     with gr.Blocks(css=CSS, theme=gr.themes.Base()) as demo:
