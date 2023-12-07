@@ -349,6 +349,8 @@ def gradio_worker(
             with gr.Column(scale=2):
                 chatbot = gr.Chatbot(elem_id="chatbot")
                 msg = gr.Textbox()
+                gr.Markdown("Note: We are fixing a bug in multi-user session control.")
+
 
                 with gr.Row():
                     submit_button = gr.Button("Submit", variant="primary")
