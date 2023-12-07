@@ -73,6 +73,9 @@ def load_fmri(fmri_path):
     return data
 
 def load_rgbx(image_path, x_image_path):
+    # trick: replace path if 'depth_scaled' in path
+    x_image_path = x_image_path.replace('depth_scaled', 'depth')
+
     image = Image.open(image_path).convert('RGB')
     x_image = Image.open(x_image_path).convert('RGB')
     x_image = x_image.resize(image.size[-2:])
@@ -339,7 +342,7 @@ def gradio_worker(
                     depth_rgb_path = gr.Image(label='RGB Image', type='filepath')
                     gr.Examples(
                         examples=[
-                            [rgb_image.replace('rgb', 'depth'), rgb_image]
+                            [rgb_image.replace('rgb', 'depth_scaled'), rgb_image]
                             for rgb_image in glob.glob("examples/depth_normal/rgb/*.png")[:9]
                         ],
                         inputs=[depth_path, depth_rgb_path],
