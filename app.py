@@ -89,7 +89,6 @@ def load_rgbx(image_path, x_image_path):
 
 class Ready: pass
 
-
 def model_worker(
     rank: int, args: argparse.Namespace, barrier: mp.Barrier,
     request_queue: mp.Queue, response_queue: Optional[mp.Queue] = None,
