@@ -89,6 +89,7 @@ def load_rgbx(image_path, x_image_path):
 
 class Ready: pass
 
+
 def model_worker(
     rank: int, args: argparse.Namespace, barrier: mp.Barrier,
     request_queue: mp.Queue, response_queue: Optional[mp.Queue] = None,
@@ -144,22 +145,25 @@ def model_worker(
         if response_queue is not None:
             response_queue.put(Ready())
         img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, temperature, top_p, modality = request_queue.get()
-        if 'image' in modality and img_path is not None:
-            image = Image.open(img_path).convert('RGB')
-            inputs = T_random_resized_crop(image)
-        elif 'video' in modality and video_path is not None:
-            inputs = load_video(video_path)
-        elif 'audio' in modality and audio_path is not None:
-            inputs = load_audio(audio_path)
-        elif 'point' in modality and point_path is not None:
-            inputs = load_point(point_path)
-        elif 'fmri' in modality and fmri_path is not None:
-            inputs = load_fmri(fmri_path)
-        elif 'rgbd' in modality and depth_path is not None and depth_rgb_path is not None:
-            inputs = load_rgbx(depth_rgb_path, depth_path)
-        elif 'rgbn' in modality and normal_path is not None and normal_rgb_path is not None:
-            inputs = load_rgbx(normal_rgb_path, normal_path)
-        else:
+        try:
+            if 'image' in modality and img_path is not None:
+                image = Image.open(img_path).convert('RGB')
+                inputs = T_random_resized_crop(image)
+            elif 'video' in modality and video_path is not None:
+                inputs = load_video(video_path)
+            elif 'audio' in modality and audio_path is not None:
+                inputs = load_audio(audio_path)
+            elif 'point' in modality and point_path is not None:
+                inputs = load_point(point_path)
+            elif 'fmri' in modality and fmri_path is not None:
+                inputs = load_fmri(fmri_path)
+            elif 'rgbd' in modality and depth_path is not None and depth_rgb_path is not None:
+                inputs = load_rgbx(depth_rgb_path, depth_path)
+            elif 'rgbn' in modality and normal_path is not None and normal_rgb_path is not None:
+                inputs = load_rgbx(normal_rgb_path, normal_path)
+            else:
+                inputs = None
+        except:
             inputs = None
         
         if inputs is not None:
