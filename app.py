@@ -393,6 +393,14 @@ def gradio_worker(
         depth_tab.select(partial(change_modality, 'rgbd'), [], [modality])
         normal_tab.select(partial(change_modality, 'rgbn'), [], [modality])
 
+        img_path.change(clear, [], [chatbot, msg])
+        audio_path.change(clear, [], [chatbot, msg])
+        video_path.change(clear, [], [chatbot, msg])
+        point_path.change(clear, [], [chatbot, msg])
+        fmri_path.change(clear, [], [chatbot, msg])
+        depth_path.change(clear, [], [chatbot, msg])
+        normal_path.change(clear, [], [chatbot, msg])
+
         msg.submit(
             show_user_input, [msg, chatbot], [msg, chatbot],
         ).then(
@@ -404,7 +412,6 @@ def gradio_worker(
             stream_model_output, [img_path, audio_path, video_path, point_path, fmri_path, depth_path, depth_rgb_path, normal_path, normal_rgb_path, chatbot, max_gen_len, gen_t, top_p, modality], chatbot,
         )
         undo_button.click(undo, chatbot, chatbot)
-        # img_path.change(clear, [], [chatbot, msg])
     barrier.wait()
     demo.queue(api_open=True).launch(share=True, max_threads=1)
 
