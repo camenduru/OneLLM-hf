@@ -423,7 +423,7 @@ class DemoConfig:
     llama_type = "onellm"
     llama_config = "config/llama2/7B.json"
     model_max_seq_len = 2048
-    pretrained_path = "csuhan/OneLLM-7B-hf"
+    pretrained_path = "csuhan/OneLLM-7B-hf-v1.1"
     # pretrained_path = "/home/pgao/jiaming/weights/7B_v20_splits/"
     ckpt_format = "consolidated.00-of-01.s{}.pth"
     num_ckpts = 10
